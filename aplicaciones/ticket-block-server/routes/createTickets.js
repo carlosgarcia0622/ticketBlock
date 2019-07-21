@@ -1,7 +1,8 @@
+
 const express = require('express');
 const app = express();
 
-app.get('/createTickets', async (req, res) => {
+app.post('/createTickets', async (req, res) => {
     
 });
 

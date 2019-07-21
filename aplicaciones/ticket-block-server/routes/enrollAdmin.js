@@ -29,7 +29,7 @@ app.get('/enrollAdmin', async (req, res) => {
 
         // Enroll the admin user, and import the new identity into the wallet.
         const enrollment = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
-        const identity = X509WalletMixin.createIdentity('org_ticketblockMSP', enrollment.certificate, enrollment.key.toBytes());
+        const identity = X509WalletMixin.createIdentity('OrgTicketBlockMSP', enrollment.certificate, enrollment.key.toBytes());
         wallet.import('admin', identity);
 
         res.json({

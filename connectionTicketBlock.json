@@ -24,7 +24,7 @@
     },
     "organizations": {
         "org_ticketblock": {
-            "mspid": "org_ticketblockMSP",
+            "mspid": "OrgTicketBlockMSP",
 	    "fullpath": false,
             "adminPrivateKey": {
               "path": "/home/carlos/blockchain/ticketBlock/crypto-config/peerOrganizations/org_ticketblock.ticketblock.com/users/Admin@org_ticketblock.ticketblock.com/msp/keystore/f614a14bc1dfd525560307be45510ca9413dbc4588620ccbf50b3ca260f40f51_sk"
