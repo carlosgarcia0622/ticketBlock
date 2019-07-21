@@ -1,0 +1,109 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.ticketblock.com:
+  peer0.org_ticketblock.ticketblock.com:
+  peer0.org_promotor1.ticketblock.com:
+
+networks:
+  basic:
+  
+services:
+  ca_ticketblock.ticketblock.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca_ticketblock.ticketblock.com
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org_ticketblock.ticketblock.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/6879c0d5bee9369e7c67ca0a16fa756f618a21f67f7687dd8f26fc25dc357d12_sk
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org_ticketblock.ticketblock.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/6879c0d5bee9369e7c67ca0a16fa756f618a21f67f7687dd8f26fc25dc357d12_sk -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/org_ticketblock.ticketblock.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_ticketblock.ticketblock.com
+    networks:
+      - basic
+
+  ca_promotor1.ticketblock.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca_promotor1.ticketblock.com
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org_promotor1.ticketblock.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/f55293540f5f80e1655990f97dd66aba7bbaa390706284dddaa71e1c1843c0e7_sk
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org_promotor1.ticketblock.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/f55293540f5f80e1655990f97dd66aba7bbaa390706284dddaa71e1c1843c0e7_sk -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/org_promotor1.ticketblock.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_promotor1.ticketblock.com
+    networks:
+      - basic
+
+
+  orderer.ticketblock.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.ticketblock.com
+    container_name: orderer.ticketblock.com
+    networks:
+      - basic
+
+  peer0.org_ticketblock.ticketblock.com:
+    container_name: peer0.org_ticketblock.ticketblock.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.org_ticketblock.ticketblock.com
+    networks:
+      - basic
+
+
+  peer0.org_promotor1.ticketblock.com:
+    container_name: peer0.org_promotor1.ticketblock.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.org_promotor1.ticketblock.com
+    networks:
+      - basic
+
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.org_ticketblock.ticketblock.com:7051
+      - CORE_PEER_LOCALMSPID=OrgTicketBlockMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org_ticketblock.ticketblock.com/peers/peer0.org_ticketblock.ticketblock.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org_ticketblock.ticketblock.com/peers/peer0.org_ticketblock.ticketblock.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org_ticketblock.ticketblock.com/peers/peer0.org_ticketblock.ticketblock.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org_ticketblock.ticketblock.com/users/Admin@org_ticketblock.ticketblock.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./chaincode/:/opt/gopath/src/github.com/chaincode
+        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - orderer.ticketblock.com
+      - peer0.org_ticketblock.ticketblock.com
+      - peer0.org_promotor1.ticketblock.com
+    networks:
+      - basic
