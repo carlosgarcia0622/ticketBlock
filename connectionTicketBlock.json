@@ -1,0 +1,78 @@
+{
+    "name": "ticketblock_basic",
+    "version": "1.0.0",
+    "client": {
+        "organization": "org_ticketblock",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                },
+                "orderer": "300"
+            }
+        }
+    },
+    "channels": {
+        "ticketblockchannel": {
+            "orderers": [
+                "orderer.ticketblock.com"
+            ],
+            "peers": {
+                "peer0.org_ticketblock.ticketblock.com": {}
+            }
+        }
+    },
+    "organizations": {
+        "org_ticketblock": {
+            "mspid": "OrgTicketBlockMSP",
+	    "fullpath": false,
+            "adminPrivateKey": {
+              "path": "/home/carlos/blockchain/ticketBlock/crypto-config/peerOrganizations/org_ticketblock.ticketblock.com/users/Admin@org_ticketblock.ticketblock.com/msp/keystore/f614a14bc1dfd525560307be45510ca9413dbc4588620ccbf50b3ca260f40f51_sk"
+         },
+            "signedCert":{
+              "path": "/home/carlos/blockchain/ticketBlock/crypto-config/peerOrganizations/org_ticketblock.ticketblock.com/users/Admin@org_ticketblock.ticketblock.com/msp/signcerts/Admin@org_ticketblock.ticketblock.com-cert.pem"
+		},
+            "peers": [
+                "peer0.org_ticketblock.ticketblock.com"
+            ],
+            "certificateAuthorities": [
+                "ca_ticketblock.ticketblock.com"
+            ]
+        }
+    },
+    "peers": {
+          "peer0.org_ticketblock.ticketblock.com": {
+            "tlsCACerts": {
+              "path": "/home/carlos/blockchain/ticketBlock/crypto-config/peerOrganizations/org_ticketblock.ticketblock.com/peers/peer0.org_ticketblock.ticketblock.com/tls/ca.crt"
+            },
+            "url": "grpcs://localhost:7051",
+            "eventUrl": "grpcs://localhost:7053",
+            "grpcOptions": {
+              "ssl-target-name-override": "peer0.org_ticketblock.ticketblock.com"
+            }
+          }
+    },
+        "orderers": {
+          "orderer.ticketblock.com": {
+            "url": "grpcs://localhost:7050",
+            "grpcOptions": {
+              "ssl-target-name-override": "orderer.ticketblock.com"
+            },
+            "tlsCACerts": {
+              "path": "/home/carlos/blockchain/ticketBlock/crypto-config/ordererOrganizations/ticketblock.com/orderers/orderer.ticketblock.com/tls/ca.crt"
+            }
+          }
+        },
+    "certificateAuthorities": {
+          "ca_ticketblock.ticketblock.com": {
+            "url": "https://localhost:7054",
+            "httpOptions": {
+              "verify": false
+            },
+            "tlsCACerts": {
+              "path": "/home/carlos/blockchain/ticketBlock/crypto-config/peerOrganizations/org_ticketblock.ticketblock.com/ca/ca.org_ticketblock.ticketblock.com-cert.pem"
+            },
+            "caName": "ca_ticketblock.ticketblock.com"
+          }
+        }
+    }
