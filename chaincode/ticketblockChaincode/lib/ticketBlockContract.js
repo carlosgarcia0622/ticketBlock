@@ -9,78 +9,38 @@ const { Contract } = require('fabric-contract-api');
 class TicketBlockContract extends Contract {
 
     async initLedger(ctx) {
-        
+
     }
 
-    // async queryCar(ctx, carNumber) {
-    //     const carAsBytes = await ctx.stub.getState(carNumber); // get the car from chaincode state
-    //     if (!carAsBytes || carAsBytes.length === 0) {
-    //         throw new Error(`${carNumber} does not exist`);
-    //     }
-    //     console.log(carAsBytes.toString());
-    //     return carAsBytes.toString();
-    // }
+    async createTickets(ctx, id, expedition, expiration, state, owner, price, resale, issuer, event, data, amount) {
 
-    // async createCar(ctx, carNumber, make, model, color, owner) {
-    //     console.info('============= START : Create Car ===========');
+        let tickets = [];
+        let ticketBase;
 
-    //     const car = {
-    //         color,
-    //         docType: 'car',
-    //         make,
-    //         model,
-    //         owner,
-    //     };
+        for (let i = 0; i < amount; i++) {
 
-    //     await ctx.stub.putState(carNumber, Buffer.from(JSON.stringify(car)));
-    //     console.info('============= END : Create Car ===========');
-    // }
+            ticketBase = {
+                id: id + i,
+                expedition,
+                expiration,
+                state,
+                owner,
+                price,
+                resale,
+                issuer,
+                event,
+                data
+            }
 
-    // async queryAllCars(ctx) {
-    //     const startKey = 'CAR0';
-    //     const endKey = 'CAR999';
+            await ctx.stub.putState(id + i, Buffer.from(JSON.stringify(ticketBase)));
+            tickets.push(ticketBase);
+            console.log(i+'\n')
 
-    //     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+        }
 
-    //     const allResults = [];
-    //     while (true) {
-    //         const res = await iterator.next();
+        return tickets;
 
-    //         if (res.value && res.value.value.toString()) {
-    //             console.log(res.value.value.toString('utf8'));
-
-    //             const Key = res.value.key;
-    //             let Record;
-    //             try {
-    //                 Record = JSON.parse(res.value.value.toString('utf8'));
-    //             } catch (err) {
-    //                 console.log(err);
-    //                 Record = res.value.value.toString('utf8');
-    //             }
-    //             allResults.push({ Key, Record });
-    //         }
-    //         if (res.done) {
-    //             console.log('end of data');
-    //             await iterator.close();
-    //             console.info(allResults);
-    //             return JSON.stringify(allResults);
-    //         }
-    //     }
-    // }
-
-    // async changeCarOwner(ctx, carNumber, newOwner) {
-    //     console.info('============= START : changeCarOwner ===========');
-
-    //     const carAsBytes = await ctx.stub.getState(carNumber); // get the car from chaincode state
-    //     if (!carAsBytes || carAsBytes.length === 0) {
-    //         throw new Error(`${carNumber} does not exist`);
-    //     }
-    //     const car = JSON.parse(carAsBytes.toString());
-    //     car.owner = newOwner;
-
-    //     await ctx.stub.putState(carNumber, Buffer.from(JSON.stringify(car)));
-    //     console.info('============= END : changeCarOwner ===========');
-    // }
+    }
 
 }
 
