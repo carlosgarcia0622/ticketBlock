@@ -1,0 +1,31 @@
+{
+  "name": "ticketblock",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlosgarcia0622/ticketBlock.git"
+  },
+  "keywords": [
+    "ticket",
+    "blockchain",
+    "resale",
+    "consensus"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/carlosgarcia0622/ticketBlock/issues"
+  },
+  "homepage": "https://github.com/carlosgarcia0622/ticketBlock#readme",
+  "dependencies": {
+    "circular-json": "^0.5.9",
+    "express": "^4.17.1",
+    "fabric-ca-client": "^1.4.4",
+    "fabric-network": "^1.4.4"
+  }
+}
