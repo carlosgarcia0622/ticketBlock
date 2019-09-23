@@ -8,14 +8,12 @@ const ccp = JSON.parse(ccpJSON);
 const express = require('express');
 const app = express();
 
-app.post('/create-tickets', async (req, res) => {
+app.post('/transfer-tickets', async (req, res) => {
 
-    //req.body = {userName, amount, ticket: {id , expedition, expitation, state, owner, price, resale, issuer, event, data:{} }} //Headers:token
-    let ticket = req.body.ticket;
     let body = req.body
 
     //Parameters validation
-    if ((!ticket.id) || (!ticket.expedition) || (!ticket.expiration) || (!ticket.price) || (!ticket.resale) || (!ticket.issuer) || (!ticket.event) || (!ticket.data) || (!body.amount)) {
+    if ((!body.id) || (!body.owner) || (!body.newOwner) || (!body.userName)) {
         console.error(`Failed to send transaction: Missing arguments\n`);
         return res.status(400).json({
             ok: false,
@@ -50,43 +48,23 @@ app.post('/create-tickets', async (req, res) => {
         const contract = network.getContract('tickets-chaincode');
 
         //Send transaction to the smart contract
-        let responseTx = JSON.parse((await contract.submitTransaction('createTickets', ticket.id, ticket.expedition, ticket.expiration, "En venta", ticket.issuer, ticket.price, ticket.resale, ticket.issuer, ticket.event, JSON.stringify(ticket.data), body.amount)).toString());
+        let responseTx = await contract.submitTransaction('transfer', body.id, body.owner, body.newOwner);
 
-        for (let i = 0; i < (responseTx).length; i++) {
-            console.log(`\n ${JSON.stringify(responseTx[i])}`);
+        if(!responseTx){
+            return res.json({
+                ok: false,
+                response: 'Problemas con el tiquete, verifique que existe y que usted es el propietario del mismo'
+            });
+        }else{
+
+            return res.json({
+                ok: true,
+                response: `ticket actualizado: \n${responseTx}`
+            });
 
         }
 
-        let response = {
-            ok: true,
-            response: {
-                responseTx
-            }
-        };
 
-
-         network.addBlockListener('my-block-listener',  ((err, block) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-
-            let blockInfo ={
-                blockNumber : block.header.number,
-                data_hash : block.header.data_hash,
-                //previous_hash : block.header.previous_hash,
-                tx_id: block.data.data[0].payload.header.channel_header.tx_id
-            }
-            
-            // response.blockInfo = blockInfo
-            console.log(blockInfo)
-        }));
-
-
-        setTimeout(()=>{
-            return res.json(response)
-        },200)
-        
 
 
     } catch (error) {
