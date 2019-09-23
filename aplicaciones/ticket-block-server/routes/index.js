@@ -4,9 +4,11 @@ const app = express();
 
 
 
-app.use(require('./enrollAdmin'));
-app.use(require('./registerUser'));
-app.use(require('./createTickets'));
-app.use(require('./queryTickets'));
+app.use(require('./enroll-admin'));
+app.use(require('./register-user'));
+app.use(require('./create-tickets'));
+app.use(require('./query-ticket'));
+app.use(require('./transfer'));
+app.use(require('./reedem'));
 
 module.exports = app;

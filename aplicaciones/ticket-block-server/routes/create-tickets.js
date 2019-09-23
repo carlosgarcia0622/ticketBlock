@@ -8,7 +8,7 @@ const ccp = JSON.parse(ccpJSON);
 const express = require('express');
 const app = express();
 
-app.post('/createTickets', async (req, res) => {
+app.post('/create-tickets', async (req, res) => {
 
     //req.body = {userName, amount, ticket: {id , expedition, expitation, state, owner, price, resale, issuer, event, data:{} }} //Headers:token
     let ticket = req.body.ticket;

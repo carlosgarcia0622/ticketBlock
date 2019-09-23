@@ -1,7 +1,7 @@
 {
-    "name": "ticketblock",
+    "name": "productscontract",
     "version": "1.0.0",
-    "description": "ticketblock contract implemented in JavaScript",
+    "description": "Multibillionaire blockchain project",
     "main": "index.js",
     "engines": {
         "node": ">=8",
