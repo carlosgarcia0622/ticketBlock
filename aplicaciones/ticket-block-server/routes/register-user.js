@@ -8,7 +8,7 @@ const ccp = JSON.parse(ccpJSON);
 const express = require('express');
 const app = express();
 
-app.post('/registerUser', async (req, res) => {
+app.post('/register-user', async (req, res) => {
 
     //req.body = {userName}
 
@@ -61,7 +61,7 @@ app.post('/registerUser', async (req, res) => {
 
         res.json({
             ok: true,
-            response: 'Successfully registered and enrolled admin user "user1" and imported it into the wallet'
+            response: `Successfully registered and enrolled admin user ${req.body.userName}  and imported it into the wallet`
         });
 
     } catch (error) {

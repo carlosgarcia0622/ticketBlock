@@ -8,7 +8,7 @@ const ccp = JSON.parse(ccpJSON);
 const express = require('express');
 const app = express();
 
-app.get('/enrollAdmin', async (req, res) => {
+app.get('/enroll-admin', async (req, res) => {
     try {
         // Create a new CA client for interacting with the CA.
         const caURL = ccp.certificateAuthorities['ca_ticketblock.ticketblock.com'].url;

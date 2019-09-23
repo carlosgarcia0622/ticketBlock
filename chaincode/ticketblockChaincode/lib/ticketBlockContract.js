@@ -42,6 +42,84 @@ class TicketBlockContract extends Contract {
 
     }
 
+    async queryTicket(ctx, id){
+        const ticketAsBytes = await ctx.stub.getState(id);
+        if (!ticketAsBytes || ticketAsBytes.length === 0) {
+            return null
+        }else{
+            return (JSON.parse(ticketAsBytes.toString()))
+        }  
+    }
+
+
+    async transfer(ctx, id, owner, newOwner){
+
+        let responseTx = {
+            ok: false,
+            response:{
+                msg:''
+            }
+        }
+
+        const ticketAsBytes = await ctx.stub.getState(id);
+
+        if (!ticketAsBytes || ticketAsBytes.length === 0) {
+            responseTx.response.msg = 'El tiquete no existe'
+            return responseTx
+        }else{
+            let ticket = JSON.parse(ticketAsBytes.toString());
+            if(ticket.owner == owner){
+                ticket.owner = newOwner;
+                await ctx.stub.putState(id, Buffer.from(JSON.stringify(ticket)));
+
+                responseTx.ok = true
+                responseTx.response.msg = 'Transferencia exitosa'
+                responseTx.response.ticket = ticket 
+                return responseTx
+            }else{
+                responseTx.response.msg = 'Solo el propietario de un tiquete puede transferirlo'
+                return responseTx
+            }
+            
+        } 
+    }
+
+
+    async reedem(ctx, id){
+
+        let responseTx= {
+            ok: false,
+            response: {
+                msg: '.'
+            }
+        }
+
+        const ticketAsBytes = await ctx.stub.getState(id);
+        if (!ticketAsBytes || ticketAsBytes.length === 0) {
+
+            responseTx.ok = false;
+            responseTx.response.msg = 'El tiquete no existe'
+            return responseTx;
+
+        }
+
+            let ticket = JSON.parse(ticketAsBytes.toString())
+
+            if( (ticket.state == 'verificado')){
+                responseTx.ok = false;
+                responseTx.response.msg = 'El tiquete ya fue utilizado'
+                return responseTx;
+            }else{
+
+                ticket.state = 'verificado';
+                await ctx.stub.putState(id, Buffer.from(JSON.stringify(ticket)));
+                responseTx.ok = true;
+                responseTx.response.msg = 'Verificación de tiquete exitosa';
+                return responseTx
+
+            }
+        }
+
 }
 
 module.exports = TicketBlockContract;
