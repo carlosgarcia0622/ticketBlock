@@ -8,21 +8,14 @@ const ccp = JSON.parse(ccpJSON);
 const express = require('express');
 const app = express();
 
-app.post('/query-ticket', async (req, res) => {
+app.get('/get-events', async (req, res) => {
 
-    //Parameters validation
-    console.log(req.body)
-    if(!req.body.code) {
-        console.error(`Failed to send transaction: Missing arguments \n`);
-        return res.status(400).json({
-            ok: false,
-            response: {
-                msg: 'Missing arguments in request body'
-            }
-        }); 
-    }
 
     try {
+        let response = {
+            ok: true,
+            response: {}
+        };
 
         // Create a new file system based wallet for managing identities.
         const walletPath = (path.join(__dirname, '../', '../', 'ticket-block-wallet'))
@@ -49,15 +42,27 @@ app.post('/query-ticket', async (req, res) => {
         const contract = network.getContract('tickets-chaincode');
 
         //Send transaction to the smart contract
-        responseTx = ((await contract.evaluateTransaction('queryTicket', req.body.code.toString())).toString())
+        let responseTx = JSON.parse((await contract.submitTransaction('getEvents')).toString());
 
-        console.log(responseTx.toString())
+
+
 
         return res.json(responseTx)
 
+        
+
+
     } catch (error) {
-        console.log(error)
+        console.error(`Failed to submit transaction: ${error}\n`);
+        return res.status(500).json({
+            ok: false,
+            response: `Failed to submit create ticket transaction`
+        });
     }
+
+
+
+
 });
 
 module.exports = app;

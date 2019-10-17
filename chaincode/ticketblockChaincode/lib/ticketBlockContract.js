@@ -44,11 +44,13 @@ class TicketBlockContract extends Contract {
 
         const iterator = await ctx.stub.getStateByRange('Event_', '');
         const events = [];
+        var res = await iterator.next();
 
-        do {            
-            const res = await iterator.next();
-            events.push(res.value);            
-        } while (res.value != null);
+        while (res.value != null){
+            events.push(JSON.parse(res.value.value.toString('utf8')));  
+            res = await iterator.next();
+        }
+
 
         if(events[0] == null){
             response.responseTx.msg = 'No se encontrato eventos'
@@ -63,25 +65,30 @@ class TicketBlockContract extends Contract {
 
         }
 
-        async createTicket(ctx, eventCode, ownerId, ownerName) {
+        async createTicket(ctx, eventCode ,ownerId, ownerName) {
 
             let response = {
                 ok: false,
                 responseTx: { msg: '' }
             }
 
-            let event = await ctx.stub.getState(`Event_${eventCode}`);
+            let eventAsBytes = await ctx.stub.getState(`Event_${eventCode}`);
 
-            if (!event) {
+            if  (!eventAsBytes || eventAsBytes.length === 0) {
                 Response.responseTx.msg = 'El evento no se encuentra registrado'
                 return response;
             }
 
+            let event = JSON.parse(eventAsBytes.toString());
+
+
+
             let ticket = {
-                id: Date.now(),
+                code: Date.now(),
                 ownerId,
                 ownerName,
-                event,
+                eventName: event.name,
+                eventCode,
                 state: true
 
             }
@@ -100,12 +107,22 @@ class TicketBlockContract extends Contract {
         }
 
         async queryTicket(ctx, id) {
-            const ticketAsBytes = await ctx.stub.getState(id);
-            if (!ticketAsBytes || ticketAsBytes.length === 0) {
-                return null
-            } else {
-                return (JSON.parse(ticketAsBytes.toString()))
+
+            let response = {
+                ok: false,
+                responseTx: { msg: '' }
             }
+            
+            const ticketAsBytes = await ctx.stub.getState(`Ticket_${id}`);
+            if (!ticketAsBytes || ticketAsBytes.length === 0) {
+                response.responseTx.msg = 'Ticket no encontrado'
+            } else {
+                response.ok = true;
+                 response.responseTx.msg = 'Consulta exitosa';
+                 response.responseTx.ticket = (JSON.parse(ticketAsBytes.toString()));
+            }
+
+            return response;
         }
 
 
@@ -118,7 +135,7 @@ class TicketBlockContract extends Contract {
                 }
             }
 
-            const ticketAsBytes = await ctx.stub.getState(id);
+            const ticketAsBytes = await ctx.stub.getState(`Ticket_${id}`);
 
             if (!ticketAsBytes || ticketAsBytes.length === 0) {
                 responseTx.response.msg = 'El tiquete no existe'
@@ -152,37 +169,38 @@ class TicketBlockContract extends Contract {
 
         async reedem(ctx, id) {
 
-            let responseTx = {
+            let response = {
                 ok: false,
-                response: {
-                    msg: '.'
+                responseTx: {
+                    msg: ''
                 }
             }
 
-            const ticketAsBytes = await ctx.stub.getState(id);
+            const ticketAsBytes = await ctx.stub.getState(`Ticket_${id}`);
             if (!ticketAsBytes || ticketAsBytes.length === 0) {
 
-                responseTx.ok = false;
-                responseTx.response.msg = 'El tiquete no existe'
-                return responseTx;
+                response.ok = false;
+                response.responseTx.msg = 'El tiquete no existe'
+                return response;
 
             }
 
             let ticket = JSON.parse(ticketAsBytes.toString())
 
-            if ((ticket.state == 'verificado')) {
-                responseTx.ok = false;
-                responseTx.response.msg = 'El tiquete ya fue utilizado'
-                return responseTx;
+            if (!(JSON.parse(ticket.state))) {
+                response.ok = false;
+                response.responseTx.msg = 'El tiquete ya fue utilizado'
+                
             } else {
 
-                ticket.state = 'verificado';
-                await ctx.stub.putState(id, Buffer.from(JSON.stringify(ticket)));
-                responseTx.ok = true;
-                responseTx.response.msg = 'Verificación de tiquete exitosa';
-                return responseTx
+                ticket.state = false;
+                await ctx.stub.putState(`Ticket_${id}`, Buffer.from(JSON.stringify(ticket)));
+                response.ok = true;
+                response.responseTx.msg = 'Tiquete verificado';
+                
 
             }
+            return response;
         }
 
     }

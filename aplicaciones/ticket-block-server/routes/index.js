@@ -10,5 +10,6 @@ app.use(require('./create-tickets'));
 app.use(require('./query-ticket'));
 app.use(require('./transfer'));
 app.use(require('./reedem'));
+app.use(require('./get-events'));
 
 module.exports = app;

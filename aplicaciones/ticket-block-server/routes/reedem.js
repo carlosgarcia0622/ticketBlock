@@ -14,7 +14,7 @@ app.post('/reedem', async (req, res) => {
 
     //Parameters validation
     
-    if ((!body.id) || (!body.userName)) {
+    if (!body.code) {
         console.error(`Failed to send transaction: Missing arguments\n`);
         return res.status(400).json({
             ok: false,
@@ -24,23 +24,23 @@ app.post('/reedem', async (req, res) => {
 
     try {
 
-        // Create a new file system based wallet for managing identities.
-        const walletPath = (path.join(__dirname, '../', '../', 'ticket-block-wallet'))
-        const wallet = new FileSystemWallet(walletPath);
+    // Create a new file system based wallet for managing identities.
+    const walletPath = (path.join(__dirname, '../', '../', 'ticket-block-wallet'))
+    const wallet = new FileSystemWallet(walletPath);
 
-        //Check to see if we've already enrolled the user.
-        const userExists = await wallet.exists(body.userName);
-        if (!userExists) {
-            console.error(`An identity for the user ${body.userName} does not exist in the wallet\n`);
-            return res.status(400).json({
-                ok: false,
-                response: `User ${body.userName} does not exist in the wallet`
-            });
-        }
+    // Check to see if we've already enrolled the admin user.
+    const adminExists = await wallet.exists('admin');
+    if (!adminExists) {
+        console.error(`Run the enrollAdmin.js application before retrying\n`);
+        return res.status(400).json({
+            ok: false,
+            response: 'An identity for the admin user "admin" does not exist in the wallet'
+        });
+    }
 
-        //Create a new gateway for connecting to our peer node.
-        const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: body.userName, discovery: { enabled: false } });
+    // Create a new gateway for connecting to our peer node.
+    const gateway = new Gateway();
+    await gateway.connect(ccp, { wallet, identity: 'admin', discovery: { enabled: false } });
 
         //Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('ticketblockchannel');
@@ -49,27 +49,12 @@ app.post('/reedem', async (req, res) => {
         const contract = network.getContract('tickets-chaincode');
 
         //Send transaction to the smart contract
-        let responseTx = JSON.parse(await contract.submitTransaction('reedem', body.id));
+        let responseTx = JSON.parse(await contract.submitTransaction('reedem', body.code.toString()));
 
         console.log(responseTx)
 
-        if(!responseTx.ok){
-            return res.json({
-                ok: false,
-                response: {
-                    msg: responseTx.response.msg
-                }
-            });
-        }else{
 
-            return res.json({
-                ok: true,
-                response: {
-                    msg: responseTx.response.msg
-                }
-            });
-
-        }
+        res.json(responseTx)
 
 
 
